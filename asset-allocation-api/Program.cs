@@ -10,11 +10,11 @@ public static class Program
     private static IHostBuilder CreateHostBuilder(string[] args)
     {
         return Host.CreateDefaultBuilder(args)
-            /*.ConfigureLogging(logging =>
+            .ConfigureWebHostDefaults(webBuilder =>
             {
-                logging.AddFilter("Microsoft.AspNetCore.SignalR", LogLevel.Debug);
-                logging.AddFilter("Microsoft.AspNetCore.Http.Connections", LogLevel.Debug);
-            })*/
-            .ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); });
+                webBuilder
+                    .UseUrls("http://0.0.0.0:5000")  
+                    .UseStartup<Startup>();
+            });
     }
 }
