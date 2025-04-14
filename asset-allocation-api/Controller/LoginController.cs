@@ -49,25 +49,25 @@ namespace asset_allocation_api.Controller
                 //TODO GET PERSONNEL INFO WITH USERNAME
                 string email = loginInput.Username;
                 // var groups = GetUserGroups(logger, loginInput.Username, loginInput.Password);
-                var admingroups = _context.Configurations.Where(a => a.Category == "Authorization").ToList();
+                var admingroups = _context.Configurations.Where(a => a.Category == "Role").ToList();
 
                 List<string> localgroups = new List<string>();
                 List<string> departments = new List<string>();
-
-                foreach (var group in admingroups)
-                {
-                    // if (groups.Contains(group.ConfigValue))
-                    // {
-                    localgroups.Add(group.ConfigDesc);
-                    departments.Add(group.DepartmentId.ToString());
-                    // }
-                }
+                
 ;                // check admin group and add to claims role 
                 Personnel? personnel = _context.Personnel.Where(a => a.Email == email).FirstOrDefault();
 
                 if (personnel == null)
                 {
                     return ResponseUtils.ReturnResponse(_logger, null, resp, null, 401, false, $"User not found the system. Email: {email}");
+                }
+                
+                var personnelNoString = personnel.PersonnelNo.ToString();
+                var roleConfig = _context.Configurations.Where(p => p.ConfigValue == personnelNoString).ToList();
+                foreach (var role in roleConfig)
+                {
+                    departments.Add(role.DepartmentId.ToString());
+                    localgroups.Add(role.ConfigDesc);
                 }
                 var ci = new ClaimsIdentity();
                 //ci.AddClaim(new Claim("id", user.Id.ToString()));
@@ -87,17 +87,8 @@ namespace asset_allocation_api.Controller
                     { "PersonnelId",personnel.PersonnelId!},
                     { "FirstName",personnel.FirstName !},
                     { "LastName",personnel.LastName !},
-                    //{ "HotstampNo",personnel.HotstampNo !},
-                    //{ "CardNum",personnel.CardNum !},
-                    //{ "PersonnelSer",personnel.PersonnelSer !},
                     { "Email",personnel.Email !},
-                    {"departments", deps }
-                    //{ "DepartmentDesc",personnel.DepartmentDesc !},
-                    //{ "PositionDesc",personnel.PositionDesc !},
-                    //{ "ContactNumber",personnel.ContactNumber !},
-                    //{ "WorkPhone",personnel.WorkPhone !},
-                    //{ "EmploymentStatus",personnel.EmploymentStatus !},
-                    //{ "ModifiedDate",personnel.ModifiedDate !}
+                    { "departments", deps }
                 };
 
                 SecurityTokenDescriptor tokenDescriptor = new()

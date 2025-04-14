@@ -13,6 +13,7 @@ using asset_allocation_api.Service.Producer;
 using System.Text;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
+using ot_api_asset_allocation.Service.Middleware;
 using Z.EntityFramework.Plus;
 
 namespace ot_api_asset_allocation;
@@ -35,6 +36,7 @@ public class Startup
         // app.UseHttpsRedirection();
         app.UseRouting();
         app.UseAuthentication();
+        app.UseMiddleware<RoleCheckerMiddleware>();
         app.UseAuthorization();
         app.UseEndpoints(endpoints =>
         {
