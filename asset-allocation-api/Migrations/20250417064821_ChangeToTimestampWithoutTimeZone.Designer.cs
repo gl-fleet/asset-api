@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using asset_allocation_api.Context;
@@ -11,9 +12,11 @@ using asset_allocation_api.Context;
 namespace asset_allocation_api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250417064821_ChangeToTimestampWithoutTimeZone")]
+    partial class ChangeToTimestampWithoutTimeZone
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -153,13 +156,13 @@ namespace asset_allocation_api.Migrations
                         .HasColumnType("date");
 
                     b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp");
 
                     b.Property<int>("ModifiedUserId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("RegisteredDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp");
 
                     b.Property<string>("Rfid")
                         .HasMaxLength(50)
@@ -214,7 +217,7 @@ namespace asset_allocation_api.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("AssignedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp");
 
                     b.Property<int?>("AssignedUserId")
                         .HasColumnType("integer");
@@ -223,7 +226,7 @@ namespace asset_allocation_api.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("ReturnedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp");
 
                     b.Property<int?>("ReturnedUserId")
                         .HasColumnType("integer");
@@ -254,7 +257,7 @@ namespace asset_allocation_api.Migrations
                         .HasColumnType("character varying(500)");
 
                     b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp");
 
                     b.Property<int?>("ModifiedUserId")
                         .HasColumnType("integer");
@@ -282,7 +285,7 @@ namespace asset_allocation_api.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("CheckedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp");
 
                     b.Property<int?>("CheckedUserId")
                         .HasColumnType("integer");
@@ -362,7 +365,7 @@ namespace asset_allocation_api.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp");
 
                     b.Property<int?>("CreatedUserId")
                         .HasColumnType("integer");
@@ -377,7 +380,7 @@ namespace asset_allocation_api.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("StartDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp");
 
                     b.HasKey("Id");
 
@@ -406,13 +409,13 @@ namespace asset_allocation_api.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("CheckedDateTime")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp");
 
                     b.Property<int?>("CheckedUserId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp");
 
                     b.Property<int?>("CreatedUserId")
                         .HasColumnType("integer");
@@ -445,7 +448,7 @@ namespace asset_allocation_api.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp");
 
                     b.Property<int?>("ModifiedUserId")
                         .HasColumnType("integer");
@@ -503,7 +506,7 @@ namespace asset_allocation_api.Migrations
                         .HasColumnName("isEnabled");
 
                     b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp");
 
                     b.Property<int?>("ModifiedUserId")
                         .HasColumnType("integer");
@@ -567,7 +570,7 @@ namespace asset_allocation_api.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp");
 
                     b.Property<int?>("ModifiedUserId")
                         .HasColumnType("integer");
@@ -594,7 +597,7 @@ namespace asset_allocation_api.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp");
 
                     b.Property<int?>("ModifiedUserId")
                         .HasColumnType("integer");
@@ -621,7 +624,7 @@ namespace asset_allocation_api.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime?>("AssignedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp");
 
                     b.Property<int?>("AssignedUserId")
                         .HasColumnType("integer");
@@ -695,7 +698,7 @@ namespace asset_allocation_api.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp");
 
                     b.Property<int?>("ModifiedUserId")
                         .HasColumnType("integer");
@@ -787,7 +790,7 @@ namespace asset_allocation_api.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp");
 
                     b.Property<int?>("ModifiedUserId")
                         .HasColumnType("integer");

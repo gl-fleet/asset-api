@@ -11,8 +11,7 @@ public partial class AssetCheckType
     public string? CheckName { get; set; }
 
     public int? ModifiedUserId { get; set; }
-
-    [Column(TypeName = "timestamptz")]
+    
     public DateTime? ModifiedDate { get; set; }
 
     public virtual ICollection<AssetCheckHistory> AssetCheckHistories { get; set; } = new List<AssetCheckHistory>();

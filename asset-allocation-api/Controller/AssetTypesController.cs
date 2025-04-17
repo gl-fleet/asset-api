@@ -151,7 +151,6 @@ namespace asset_allocation_api.Controller
                 if (checktypesetting.Id == 0)
                 {
                     checktypesetting.AssetTypeId = newAssetType.Id;
-                    checktypesetting.CreatedDate = DateTime.Now;
                     checktypesetting.CreatedUserId = newAssetType.ModifiedUserId;
 
                     // Set Expirelimit value if provided in the request
@@ -194,7 +193,7 @@ namespace asset_allocation_api.Controller
             }
             
 
-            dbAssetType.ModifiedDate = DateTime.Now;
+            // dbAssetType.ModifiedDate = DateTime.Now;
 
             await _context.SaveChangesAsync(audit);
             return NoContent();
@@ -214,7 +213,7 @@ namespace asset_allocation_api.Controller
                 CreatedBy = _httpContextAccessor.HttpContext?.User?.Identity?.Name ?? "System"
             };
 
-            assetType.ModifiedDate = DateTime.Now;
+            // assetType.ModifiedDate = DateTime.Now;
             _context.AssetTypes.Add(assetType);
             await _context.SaveChangesAsync(audit);
 
@@ -233,7 +232,7 @@ namespace asset_allocation_api.Controller
                 depAT.Id = 0;
                 depAT.AssetTypeId = assetType.Id;
                 depAT.ModifiedUserId = assetType.ModifiedUserId;
-                depAT.ModifiedDate = assetType.ModifiedDate;
+                depAT.ModifiedDate = DateTime.Now;
                 _context.DepartmentAssetTypes.Add(depAT);
             }
            
@@ -244,7 +243,7 @@ namespace asset_allocation_api.Controller
                     checktypesetting.Id = 0;
                     checktypesetting.AssetTypeId = assetType.Id;
                     checktypesetting.CreatedUserId = assetType.ModifiedUserId;
-                    checktypesetting.CreatedDate = assetType.ModifiedDate;
+                    checktypesetting.CreatedDate = DateTime.Now;
                     _context.AssetCheckTypeSettings.Add(checktypesetting);
                 }
                 else

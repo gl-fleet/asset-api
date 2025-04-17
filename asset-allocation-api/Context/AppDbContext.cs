@@ -9,6 +9,7 @@ public partial class AppDbContext : DbContext
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     public AppDbContext() {}
+    // public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) {}
 
     public AppDbContext(DbContextOptions<AppDbContext> options, IHttpContextAccessor httpContextAccessor) : base(options) {
         _httpContextAccessor = httpContextAccessor;
@@ -16,6 +17,16 @@ public partial class AppDbContext : DbContext
         {
             // ADD "Where(x => x.AuditEntryID == 0)" to allow multiple SaveChanges with same Audit
             context.Set<AuditEntry>().AddRange(auditEntries.Entries.Where(x => x.AuditEntryID == 0));
+        };
+        
+        AuditManager.DefaultConfiguration.AutoSavePreAction = (context, audit) =>
+        {
+            foreach (var entry in audit.Entries)
+            {
+                entry.CreatedDate = DateTime.UtcNow;
+            }
+
+            context.AddRange(audit.Entries);
         };
         
         AuditManager.DefaultConfiguration.Include<Configuration>();
@@ -34,7 +45,7 @@ public partial class AppDbContext : DbContext
     {
         var entries = ChangeTracker.Entries<AuditableEntity>();
         var userName = _httpContextAccessor.HttpContext?.User?.Identity?.Name ?? "System";
-
+    
         foreach (var entry in entries)
         {
             switch (entry.State)
@@ -57,7 +68,7 @@ public partial class AppDbContext : DbContext
                     throw new ArgumentOutOfRangeException();
             }
         }
-
+    
         return base.SaveChangesAsync(cancellationToken);
     }
     
@@ -130,10 +141,13 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Description).HasMaxLength(50);
             entity.Property(e => e.Mac2).HasMaxLength(50);
             entity.Property(e => e.Mac3).HasMaxLength(50);
-            entity.Property(e => e.ModifiedDate).HasColumnType("timestamp");
-            entity.Property(e => e.RegisteredDate).HasColumnType("timestamp");
+            entity.Property(e => e.ModifiedDate).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.RegisteredDate).HasColumnType("timestamp without time zone");
             entity.Property(e => e.Rfid).HasMaxLength(50);
             entity.Property(e => e.Serial).HasMaxLength(50);
+            entity.Property(e => e.CreatedAt).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.UpdatedAt).HasColumnType("timestamp without time zone");
+            
 
             entity.HasOne(d => d.AssetType).WithMany(p => p.Assets)
                 .HasForeignKey(d => d.AssetTypeId)
@@ -160,8 +174,8 @@ public partial class AppDbContext : DbContext
 
             entity.HasIndex(e => new { e.PersonnelNo, e.ReturnedDate }, "NonClusteredIndex-20241003-093424");
 
-            entity.Property(e => e.AssignedDate).HasColumnType("timestamp");
-            entity.Property(e => e.ReturnedDate).HasColumnType("timestamp");
+            entity.Property(e => e.AssignedDate).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.ReturnedDate).HasColumnType("timestamp without time zone");
 
             entity.HasOne(d => d.Asset).WithMany(p => p.AssetAllocations)
                 .HasForeignKey(d => d.AssetId)
@@ -173,7 +187,7 @@ public partial class AppDbContext : DbContext
             entity.HasKey(e => e.Id).HasName("PK__AssetAtt__3214EC0710F2A989");
 
             entity.Property(e => e.FilePath).HasMaxLength(500);
-            entity.Property(e => e.ModifiedDate).HasColumnType("timestamp");
+            entity.Property(e => e.ModifiedDate).HasColumnType("timestamp without time zone");
 
             entity.HasOne(d => d.Asset).WithMany(p => p.AssetAttachments)
                 .HasForeignKey(d => d.AssetId)
@@ -187,9 +201,11 @@ public partial class AppDbContext : DbContext
 
             entity.ToTable("AssetCheckHistory");
 
-            entity.Property(e => e.CheckedDate).HasColumnType("timestamp");
+            entity.Property(e => e.CheckedDate).HasColumnType("timestamp without time zone");
             entity.Property(e => e.Description).HasMaxLength(255);
             entity.Property(e => e.Status).HasMaxLength(255);
+            entity.Property(e => e.CreatedAt).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.UpdatedAt).HasColumnType("timestamp without time zone");
 
             entity.HasOne(d => d.AssetCheckType).WithMany(p => p.AssetCheckHistories)
                 .HasForeignKey(d => d.AssetCheckTypeId)
@@ -214,8 +230,8 @@ public partial class AppDbContext : DbContext
         {
             entity.ToTable("AssetCheckTypeSetting");
 
-            entity.Property(e => e.CreatedDate).HasColumnType("timestamp");
-            entity.Property(e => e.StartDate).HasColumnType("timestamp");
+            entity.Property(e => e.CreatedDate).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.StartDate).HasColumnType("timestamp without time zone");
 
             entity.HasOne(d => d.AssetType).WithMany(p => p.AssetCheckTypeSettings)
                 .HasForeignKey(d => d.AssetTypeId)
@@ -226,8 +242,8 @@ public partial class AppDbContext : DbContext
         {
             entity.ToTable("AssetInspectionHistory");
 
-            entity.Property(e => e.CheckedDateTime).HasColumnType("timestamp");
-            entity.Property(e => e.CreatedDate).HasColumnType("timestamp");
+            entity.Property(e => e.CheckedDateTime).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.CreatedDate).HasColumnType("timestamp without time zone");
             entity.Property(e => e.Description).HasMaxLength(1000);
 
             entity.HasOne(d => d.Asset).WithMany(p => p.AssetInspectionHistories)
@@ -245,8 +261,10 @@ public partial class AppDbContext : DbContext
 
             entity.ToTable("AssetType");
 
-            entity.Property(e => e.ModifiedDate).HasColumnType("timestamp");
+            entity.Property(e => e.ModifiedDate).HasColumnType("timestamp without time zone");
             entity.Property(e => e.Name).HasMaxLength(255);
+            entity.Property(e => e.CreatedAt).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.UpdatedAt).HasColumnType("timestamp without time zone");
         });
         
         modelBuilder.Entity<Configuration>(entity =>
@@ -259,7 +277,9 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.ConfigDesc).HasMaxLength(50);
             entity.Property(e => e.ConfigValue).HasMaxLength(50);
             entity.Property(e => e.IsEnabled).HasColumnName("isEnabled");
-            entity.Property(e => e.ModifiedDate).HasColumnType("timestamp");
+            entity.Property(e => e.ModifiedDate).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.CreatedAt).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.UpdatedAt).HasColumnType("timestamp without time zone");
 
             entity.HasOne(d => d.Department).WithMany(p => p.Configurations)
                 .HasForeignKey(d => d.DepartmentId)
@@ -273,6 +293,8 @@ public partial class AppDbContext : DbContext
             entity.ToTable("Department");
 
             entity.Property(e => e.Name).HasMaxLength(80);
+            entity.Property(e => e.CreatedAt).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.UpdatedAt).HasColumnType("timestamp without time zone");
         });
 
         modelBuilder.Entity<DepartmentAssetType>(entity =>
@@ -281,7 +303,7 @@ public partial class AppDbContext : DbContext
 
             entity.ToTable("DepartmentAssetType");
 
-            entity.Property(e => e.ModifiedDate).HasColumnType("timestamp");
+            entity.Property(e => e.ModifiedDate).HasColumnType("timestamp without time zone");
 
             entity.HasOne(d => d.AssetType).WithMany(p => p.DepartmentAssetTypes)
                 .HasForeignKey(d => d.AssetTypeId)
@@ -296,7 +318,7 @@ public partial class AppDbContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__Departme__3214EC0707139CD3");
 
-            entity.Property(e => e.ModifiedDate).HasColumnType("timestamp");
+            entity.Property(e => e.ModifiedDate).HasColumnType("timestamp without time zone");
             entity.Property(e => e.UserGroup).HasMaxLength(255);
         });
 
@@ -304,7 +326,7 @@ public partial class AppDbContext : DbContext
         {
             entity.ToTable("NonReturnableAssetAllocation");
 
-            entity.Property(e => e.AssignedDate).HasColumnType("timestamp");
+            entity.Property(e => e.AssignedDate).HasColumnType("timestamp without time zone");
         });
 
         modelBuilder.Entity<NonReturnableAssetField>(entity =>
@@ -313,6 +335,8 @@ public partial class AppDbContext : DbContext
 
             entity.Property(e => e.FieldName).HasMaxLength(255);
             entity.Property(e => e.ValueType).HasMaxLength(255);
+            entity.Property(e => e.CreatedAt).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.UpdatedAt).HasColumnType("timestamp without time zone");
 
             entity.HasOne(d => d.AssetType).WithMany(p => p.NonReturnableAssetFields)
                 .HasForeignKey(d => d.AssetTypeId)
@@ -323,7 +347,9 @@ public partial class AppDbContext : DbContext
         {
             entity.ToTable("NonReturnableAssetPersonnelPermit");
 
-            entity.Property(e => e.ModifiedDate).HasColumnType("timestamp");
+            entity.Property(e => e.ModifiedDate).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.CreatedAt).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.UpdatedAt).HasColumnType("timestamp without time zone");
 
             entity.HasOne(d => d.AssetType).WithMany(p => p.NonReturnableAssetPersonnelPermits)
                 .HasForeignKey(d => d.AssetTypeId)
@@ -337,6 +363,8 @@ public partial class AppDbContext : DbContext
             entity.HasIndex(e => new { e.FieldId, e.PersonnelId }, "NonClusteredIndex-20240927-090804");
 
             entity.Property(e => e.Value).HasMaxLength(255);
+            entity.Property(e => e.CreatedAt).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.UpdatedAt).HasColumnType("timestamp without time zone");
 
             entity.HasOne(d => d.Field).WithMany(p => p.NonReturnableAssetPersonnelSettings)
                 .HasForeignKey(d => d.FieldId)
@@ -348,7 +376,7 @@ public partial class AppDbContext : DbContext
             entity.ToTable("NonReturnableAssetType");
 
             entity.Property(e => e.IconName).HasMaxLength(255);
-            entity.Property(e => e.ModifiedDate).HasColumnType("timestamp");
+            entity.Property(e => e.ModifiedDate).HasColumnType("timestamp without time zone");
             entity.Property(e => e.Name).HasMaxLength(255);
 
             entity.HasOne(d => d.Department).WithMany(p => p.NonReturnableAssetTypes)
@@ -383,6 +411,8 @@ public partial class AppDbContext : DbContext
             entity.ToTable("TypeTraining");
 
             entity.Property(e => e.Type).HasMaxLength(20);
+            entity.Property(e => e.CreatedAt).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.UpdatedAt).HasColumnType("timestamp without time zone");
 
             entity.HasOne(d => d.AssetType).WithMany(p => p.TypeTrainings)
                 .HasForeignKey(d => d.AssetTypeId)

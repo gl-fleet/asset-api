@@ -66,10 +66,8 @@ namespace asset_allocation_api.Controller
             // JsonObject? json = JsonNode.Parse((await HttpUtils.CallMicroservice<string>(_logger,
             //     AssetAllocationConfig.imsPersonnelQualifications, HttpMethod.Get,
             //     AssetAllocationConfig.microServiceToken, queryParams: dict))!)!["Data"]!.AsObject();
-            
-            JsonObject? json = JsonNode.Parse("").AsObject();
 
-            return ResponseUtils.ReturnResponse(_logger, null, resp, json, 200, true, "Personnel qualification checked successfully.");
+            return ResponseUtils.ReturnResponse(_logger, null, resp, new JsonObject(), 200, true, "Personnel qualification checked successfully.");
         }
 
 
@@ -89,9 +87,9 @@ namespace asset_allocation_api.Controller
             //     AssetAllocationConfig.imsPersonnelQualifications, HttpMethod.Get,
             //     AssetAllocationConfig.microServiceToken, queryParams: dict))!)!["Data"]!.AsObject();
             
-            JsonObject? json = JsonNode.Parse("").AsObject();
+            // JsonObject? json = JsonNode.Parse("").AsObject();
 
-            return ResponseUtils.ReturnResponse(_logger, null, resp, json, 200, true, "Personnel qualification returned successfully");
+            return ResponseUtils.ReturnResponse(_logger, null, resp, new JsonObject(), 200, true, "Personnel qualification returned successfully");
         }
 
 
@@ -99,14 +97,7 @@ namespace asset_allocation_api.Controller
         public async Task<object> GetAllQualifications()
         {
             Response<JsonNode?> resp = new();
-
-            // JsonObject? json = JsonNode.Parse((await HttpUtils.CallMicroservice<string>(_logger,
-            //     AssetAllocationConfig.imsAllQualification, HttpMethod.Get,
-            //     AssetAllocationConfig.microServiceToken))!)!["Data"]!.AsObject();
-            
-            JsonObject? json = JsonNode.Parse("").AsObject();
-
-            return ResponseUtils.ReturnResponse(_logger, null, resp, json, 200, true, "Qualification list returned successfully");
+            return ResponseUtils.ReturnResponse(_logger, null, resp, new JsonObject(), 200, true, "Qualification list returned successfully");
         }
     }
 }
