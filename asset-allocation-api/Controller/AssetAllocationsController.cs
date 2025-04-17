@@ -10,7 +10,6 @@ using asset_allocation_api.Model;
 using asset_allocation_api.Model.Input_Model;
 using asset_allocation_api.Model.Output_Model;
 using asset_allocation_api.Models;
-using asset_allocation_api.Service.Producer;
 using asset_allocation_api.Util;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -25,12 +24,10 @@ namespace asset_allocation_api.Controller
     public class AssetAllocationsController(
         AppDbContext context, 
         ILogger<AssetAllocationsController> logger, 
-        KafkaDependentProducer<string, string> kafkaProducer,
         AssetAllocationHandler assetAllocationHandler) : ControllerBase
     {
         private readonly AppDbContext _context = context;
         private readonly ILogger _logger = logger;
-        private readonly KafkaDependentProducer<string, string> _kafkaProducer = kafkaProducer;
         private readonly AssetAllocationHandler _assetAllocationHandler = assetAllocationHandler;
 
         // GET: api/AssetAllocations

@@ -7,9 +7,7 @@ using NuGet.Configuration;
 using asset_allocation_api.Config;
 using asset_allocation_api.Context;
 using asset_allocation_api.Service.Background;
-using asset_allocation_api.Service.Consumer;
 using asset_allocation_api.Service.Implementation;
-using asset_allocation_api.Service.Producer;
 using System.Text;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
@@ -108,8 +106,6 @@ public class Startup
         services.AddScoped<DashboardService>();
         services.AddScoped<AssetAllocationHandler>();
         services.AddSingleton<SignalRHub>();
-        services.AddSingleton<KafkaClientHandle>();
-        services.AddSingleton<KafkaDependentProducer<string, string>>();
         services.AddHostedService<Scheduler>();
         // services.AddHostedService<AllocationConsumer>();
         services.AddHealthChecks().AddCheck<HealthCheck>(AssetAllocationConfig.NameSpace);

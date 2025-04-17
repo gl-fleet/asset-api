@@ -12,7 +12,6 @@ using asset_allocation_api.Controller;
 using asset_allocation_api.Model.CustomModel;
 using asset_allocation_api.Model.Input_Model;
 using asset_allocation_api.Model.Output_Model;
-using asset_allocation_api.Service.Producer;
 using asset_allocation_api.Util;
 using Status = asset_allocation_api.Model.Output_Model.Status;
 
@@ -20,11 +19,9 @@ namespace asset_allocation_api.Service.Implementation;
 
 public class AssetAllocationHandler(
     AppDbContext context, ILogger<AssetAllocationHandler> logger, 
-    IHttpClientFactory clientFactory,
-    KafkaDependentProducer<string, string> kafkaProducer)
+    IHttpClientFactory clientFactory)
 {
     private readonly AppDbContext _context = context;
-    private readonly KafkaDependentProducer<string, string> _kafkaProducer = kafkaProducer;
     private readonly IHttpClientFactory _clientFactory = clientFactory;
     private readonly ILogger _logger = logger;
     
@@ -333,12 +330,12 @@ public class AssetAllocationHandler(
             _logger.LogDebug("Serializing signalR data");
             assetAllocation.Asset = null;
             assetAllocation.Assets = new List<Asset>();
-            await _kafkaProducer.ProduceAsync(AssetAllocationConfig.kafkaSocketAllocationTopic,
-                new Message<string, string>
-                {
-                    Key = assetAllocation.PersonnelNo.ToString(),
-                    Value = JsonSerializer.Serialize(assetAllocation)
-                });
+            // await _kafkaProducer.ProduceAsync(AssetAllocationConfig.kafkaSocketAllocationTopic,
+            //     new Message<string, string>
+            //     {
+            //         Key = assetAllocation.PersonnelNo.ToString(),
+            //         Value = JsonSerializer.Serialize(assetAllocation)
+            //     });
             _logger.LogDebug("Kafka message produced successfully");
             resp = "SignalR data sent successfully";
         }

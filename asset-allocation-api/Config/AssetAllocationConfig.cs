@@ -20,21 +20,11 @@ namespace asset_allocation_api.Config
 
         public static readonly string assetAllocationConnectionString
             = $"Host={assetAllocationServer};Port=5432;Database={assetAllocationDatabase};Username={assetAllocationUserid};Password={assetAllocationPassword};";
-
-        public static readonly string ldapPath = GetEnvironmentVariable("OTUG_LDAP_PATH", "mnoytcorpdc7.corp.riotinto.org");
-        public static readonly string ldapDomainName = GetEnvironmentVariable("OTUG_LDAP_DOMAIN_NAME", "CORP");
-
+        
         public static readonly string JWT_SECRET = GetEnvironmentVariable("OTUG_JWT_SECRET", "8;jAq0}SM]sjDe2T#AZ{j1>M`(j>,.lX~'$C9)A/xCi|wia=h;dXf?gpb-|VF*d0000");
-
-        public static readonly string microServiceAuthUrl = GetEnvironmentVariable("OTUG_MICROSERVICE_AUTH", "http://otauthservice-dev.otapi.corp.riotinto.org/api/v1/authorize");
+        
         public static readonly string microServiceToken = GetEnvironmentVariable("OTUG_MICROSERVICE_TOKEN", "***");
-
-        public static readonly string imsBaseUrl = GetEnvironmentVariable("OTUG_IMS_BASE_URL", "http://ims-dev.otapi.corp.riotinto.org/api/v1/Personnel/");
-        public static readonly string imsAllQualification = imsBaseUrl + GetEnvironmentVariable("OTUG_IMS_ALL_QUALIFICATION", "Qualification");
-        public static readonly string imsPersonnelQualifications = imsBaseUrl + GetEnvironmentVariable("OTUG_IMS_PERSONNEL_QUALIFICATIONS", "AttendancesByQualifications");
-
-        public static readonly string kafkaPersonnelTopic = GetEnvironmentVariable("OTUG_KAFKA_PERSONNEL_TOPIC", "ims_full_personnel_dev");
-        public static readonly string kafkaSocketAllocationTopic = GetEnvironmentVariable("OTUG_KAFKA_SOCKET_ALLOCATION_TOPIC", "asset-allocation-allocations-dev");
+        
         public static readonly string kafkaBootstrapServers = GetEnvironmentVariable("OTUG_KAFKA_SERVER", "MNOYTKFKBRD1.corp.riotinto.org:9092,MNOYTKFKBRD2.corp.riotinto.org:9092,MNOYTKFKBRD3.corp.riotinto.org:9092");
         public static readonly string kafkaConsumerGroupId = GetEnvironmentVariable("OTUG_KAFKA_GROUP", "ot -api-asset-allocation-dev");
 
