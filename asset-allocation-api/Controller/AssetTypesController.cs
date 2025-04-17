@@ -213,7 +213,7 @@ namespace asset_allocation_api.Controller
                 CreatedBy = _httpContextAccessor.HttpContext?.User?.Identity?.Name ?? "System"
             };
 
-            // assetType.ModifiedDate = DateTime.Now;
+            assetType.ModifiedDate = DateTime.Now;
             _context.AssetTypes.Add(assetType);
             await _context.SaveChangesAsync(audit);
 
@@ -232,7 +232,7 @@ namespace asset_allocation_api.Controller
                 depAT.Id = 0;
                 depAT.AssetTypeId = assetType.Id;
                 depAT.ModifiedUserId = assetType.ModifiedUserId;
-                depAT.ModifiedDate = DateTime.Now;
+                // depAT.ModifiedDate = DateTime.Now;
                 _context.DepartmentAssetTypes.Add(depAT);
             }
            

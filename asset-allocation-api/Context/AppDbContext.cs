@@ -13,20 +13,19 @@ public partial class AppDbContext : DbContext
 
     public AppDbContext(DbContextOptions<AppDbContext> options, IHttpContextAccessor httpContextAccessor) : base(options) {
         _httpContextAccessor = httpContextAccessor;
+        // AuditManager.DefaultConfiguration.AutoSavePreAction = (context, auditEntries) =>
+        // {
+        //     // ADD "Where(x => x.AuditEntryID == 0)" to allow multiple SaveChanges with same Audit
+        //     context.Set<AuditEntry>().AddRange(auditEntries.Entries.Where(x => x.AuditEntryID == 0));
+        // };
+        
         AuditManager.DefaultConfiguration.AutoSavePreAction = (context, auditEntries) =>
         {
-            // ADD "Where(x => x.AuditEntryID == 0)" to allow multiple SaveChanges with same Audit
-            context.Set<AuditEntry>().AddRange(auditEntries.Entries.Where(x => x.AuditEntryID == 0));
-        };
-        
-        AuditManager.DefaultConfiguration.AutoSavePreAction = (context, audit) =>
-        {
-            foreach (var entry in audit.Entries)
+            foreach (var auditEntry in auditEntries.Entries.Where(x => x.AuditEntryID == 0))
             {
-                entry.CreatedDate = DateTime.UtcNow;
+                auditEntry.CreatedDate = DateTime.UtcNow;
+                context.Set<AuditEntry>().Add(auditEntry);
             }
-
-            context.AddRange(audit.Entries);
         };
         
         AuditManager.DefaultConfiguration.Include<Configuration>();
