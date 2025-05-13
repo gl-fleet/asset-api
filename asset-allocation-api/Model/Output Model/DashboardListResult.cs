@@ -10,6 +10,6 @@
         public DateTime Date { get; set; }
         public string? Shift { get; set; }
         public string? Name { get; set; }
-        public int Count { get; set; }
+        public long Count { get; set; }
     }
 }

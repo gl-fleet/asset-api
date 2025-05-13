@@ -59,18 +59,35 @@ namespace asset_allocation_api.Controller
 
                         if (!string.IsNullOrEmpty(s.Key) && typeof(Personnel).GetProperty(s.Key) == null) 
                             return ResponseUtils.ReturnResponse(_logger, null, resp, null, 400, false, "FilterField invalid. There is no attribute/property named {0}", values: [s.Key]);
-                        if(s.Value.Count == 1) personnelContext = personnelContext.Where(a => EF.Functions.Like((string)EF.Property<object>(a, s.Key), $"{s.Value[0]}%"));
-                        else personnelContext = personnelContext.Where(a => s.Value.Contains( (string)EF.Property<object>(a, s.Key) ));
+                        if (s.Value.Count == 1)
+                        {
+                            personnelContext = personnelContext.Where(a => EF.Functions.ILike(a.FullName, $"%{s.Value[0]}%"));                            
+                        }
+                        else personnelContext = personnelContext.Where(a => EF.Functions.ILike(a.FullName, $"%{s.Value[0]}%"));
                     }
                 }
             }
 
-            int count = personnelContext.Count();
+            // Get the total count of records
+            int count = await personnelContext.CountAsync();
 
-            if ("asc".Equals(SortOrder)) personnelContext = personnelContext.OrderBy(a => EF.Property<Personnel>(a, SortField!));
-            else personnelContext = personnelContext.OrderByDescending(a => EF.Property<Personnel>(a, SortField!));
+            // Apply sorting based on the SortOrder
+            if ("asc".Equals(SortOrder, StringComparison.OrdinalIgnoreCase))
+                personnelContext = personnelContext.OrderBy(a => EF.Property<object>(a, SortField!)); // Ascending order
+            else
+                personnelContext = personnelContext.OrderByDescending(a => EF.Property<object>(a, SortField!)); // Descending order
 
-            PersonnelListResult myobj = new((count - 1) / PageSize + 1, await personnelContext.Skip(PageSize * (Page - 1)).Take(PageSize).ToListAsync());
+            // Calculate total pages
+            int totalPages = (count - 1) / PageSize + 1;
+
+            // Fetch the data for the requested page
+            var result = await personnelContext
+                .Skip(PageSize * (Page - 1)) // Skip the rows for the previous pages
+                .Take(PageSize) // Take only the records for the current page
+                .ToListAsync();
+
+            // Return the result as part of your result object (e.g., myobj)
+            PersonnelListResult myobj = new(totalPages, result);
 
             return ResponseUtils.ReturnResponse(_logger, null, resp, myobj, 200, true, "Personnel data returned successfully.");
         }

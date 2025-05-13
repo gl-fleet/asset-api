@@ -26,54 +26,51 @@ namespace asset_allocation_api.Service.Implementation
                 ResponseUtils.ReturnResponse(_logger, null, resp, null, 500, false, "AssetAllocations context is null");
                 return resp;
             }
-            // DataTable dt = new();
-            // using (AppDbContext db = new())
-            // {
-            //     using NpgsqlConnection con = (NpgsqlConnection)db.Database.GetDbConnection();
-            //     using NpgsqlCommand cmd = new("usp_get_allocation_summary", con)
-            //     {
-            //         CommandType = CommandType.StoredProcedure
-            //     };
-            //     //
-            //     // cmd.Parameters.Add(new NpgsqlParameter("@p_department_id", NpgsqlDbType.Integer) { Value = departmentId });
-            //     // cmd.Parameters.Add(new NpgsqlParameter("@p_shift_start_time", NpgsqlDbType.Integer) { Value = AssetAllocationConfig.assetAllocShiftStart });
-            //     // cmd.Parameters.Add(new NpgsqlParameter("@p_shift_end_time", NpgsqlDbType.Integer) { Value = AssetAllocationConfig.assetAllocShiftEnd });
-            //     // cmd.Parameters.Add(new NpgsqlParameter("@p_ds_shift_name", NpgsqlDbType.Text) { Value = AssetAllocationConfig.assetAllocShiftName1 });
-            //     // cmd.Parameters.Add(new NpgsqlParameter("@p_ns_shift_name", NpgsqlDbType.Text) { Value = AssetAllocationConfig.assetAllocShiftName2 });
-            //     
-            //     // cmd.Parameters.Add(new NpgsqlParameter("@p_department_id", NpgsqlDbType.Integer) { Value = 1 });
-            //     // cmd.Parameters.Add(new NpgsqlParameter("@p_shift_start_time", NpgsqlDbType.Integer) { Value = 4});
-            //     // cmd.Parameters.Add(new NpgsqlParameter("@p_shift_end_time", NpgsqlDbType.Integer) { Value = 16 });
-            //     // cmd.Parameters.Add(new NpgsqlParameter("@p_ds_shift_name", NpgsqlDbType.Text) { Value = "Morning" });
-            //     // cmd.Parameters.Add(new NpgsqlParameter("@p_ns_shift_name", NpgsqlDbType.Text) { Value = "Night" });
-            //
-            //     await con.OpenAsync();
-            //
-            //     using NpgsqlDataReader rdr = await cmd.ExecuteReaderAsync();
-            //     dt.Load(rdr);
-            // }
+            DataTable dt = new();
+            using (AppDbContext db = new())
+            {
+                using NpgsqlConnection con = (NpgsqlConnection)db.Database.GetDbConnection();
+                using NpgsqlCommand cmd = new(@"SELECT * FROM usp_get_allocation_summary(@p_department_id, @p_shift_start_time, @p_shift_end_time, @p_ds_shift_name, @p_ns_shift_name)", con);
+                
+                // cmd.Parameters.Add(new NpgsqlParameter("@p_department_id", NpgsqlDbType.Integer) { Value = 1 });
+                // cmd.Parameters.Add(new NpgsqlParameter("@p_shift_start_time", NpgsqlDbType.Integer) { Value = AssetAllocationConfig.assetAllocShiftStart });
+                // cmd.Parameters.Add(new NpgsqlParameter("@p_shift_end_time", NpgsqlDbType.Integer) { Value = AssetAllocationConfig.assetAllocShiftEnd });
+                // cmd.Parameters.Add(new NpgsqlParameter("@p_ds_shift_name", NpgsqlDbType.Text) { Value = AssetAllocationConfig.assetAllocShiftName1 });
+                // cmd.Parameters.Add(new NpgsqlParameter("@p_ns_shift_name", NpgsqlDbType.Text) { Value = AssetAllocationConfig.assetAllocShiftName2 });
+                
+                cmd.Parameters.Add(new NpgsqlParameter("@p_department_id", NpgsqlDbType.Integer) { Value = 1 });
+                cmd.Parameters.Add(new NpgsqlParameter("@p_shift_start_time", NpgsqlDbType.Integer) { Value = 4});
+                cmd.Parameters.Add(new NpgsqlParameter("@p_shift_end_time", NpgsqlDbType.Integer) { Value = 16 });
+                cmd.Parameters.Add(new NpgsqlParameter("@p_ds_shift_name", NpgsqlDbType.Varchar) { Value = "Morning" });
+                cmd.Parameters.Add(new NpgsqlParameter("@p_ns_shift_name", NpgsqlDbType.Varchar) { Value = "Night" });
+            
+                await con.OpenAsync();
+            
+                using NpgsqlDataReader rdr = await cmd.ExecuteReaderAsync();
+                dt.Load(rdr);
+            }
 
             List<Dashboard> list = [];
-            // for (int i = 0; i < dt.Rows.Count; i++)
-            // {
-            //     Dashboard dashboard = new()
-            //     {
-            //         Date = (DateTime)dt.Rows[i]["Date"],
-            //         Shift = (string)dt.Rows[i]["Shift"],
-            //         Name = (string)dt.Rows[i]["Name"],
-            //         Count = (int)dt.Rows[i]["Count"]
-            //     };
-            //     list.Add(dashboard);
-            // }
-            
-            Dashboard dashboard = new()
+            for (int i = 0; i < dt.Rows.Count; i++)
             {
-                Date = DateTime.Now,
-                Shift = "Morning",
-                Name = "Test",
-                Count = 1
-            };
-            list.Add(dashboard);
+                Dashboard dashboard = new()
+                {
+                    Date = (DateTime)dt.Rows[i]["Date"],
+                    Shift = (string)dt.Rows[i]["Shift"],
+                    Name = (string)dt.Rows[i]["Name"],
+                    Count = (long)dt.Rows[i]["Count"]
+                };
+                list.Add(dashboard);
+            }
+            
+            // Dashboard dashboard = new()
+            // {
+            //     Date = DateTime.Now,
+            //     Shift = "Morning",
+            //     Name = "Test",
+            //     Count = 1
+            // };
+            // list.Add(dashboard);
 
             ResponseUtils.ReturnResponse(_logger, null, resp, new DashboardListResult(list), 200, true, "Success"); ;
             return resp;

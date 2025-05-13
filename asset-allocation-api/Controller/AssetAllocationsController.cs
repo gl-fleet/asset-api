@@ -93,47 +93,65 @@ namespace asset_allocation_api.Controller
             {
                 string[] Fields = FilterField.Split(',');
                 string[] Values = FilterValue.Split(',');
-            
+
                 var Filter = new Dictionary<string, List<string>>();
-            
-                if(Fields.Length == Values.Length)
+
+                if (Fields.Length == Values.Length)
                 {
                     for (int i = 0; i < Fields.Length; i++)
                     {
-                        if (!Filter.ContainsKey(Fields[i])) Filter[Fields[i]] = new List<string>();
+                        if (!Filter.ContainsKey(Fields[i])) 
+                            Filter[Fields[i]] = new List<string>();
+
                         Filter[Fields[i]].Add(Values[i]);
                     }
-                    foreach(KeyValuePair<string, List<string>> s in Filter)
+
+                    foreach (var s in Filter)
                     {
+                        if (!string.IsNullOrEmpty(s.Key) && typeof(AssetAllocationView).GetProperty(s.Key) == null)
+                            return ResponseUtils.ReturnResponse(_logger, null, resp, null, 400, false, "FilterField invalid. There is no attribute/property named {0}", values: [s.Key]);
 
-                        if (!string.IsNullOrEmpty(s.Key) && typeof(AssetAllocationView).GetProperty(s.Key) == null) return ResponseUtils.ReturnResponse(_logger, null, resp, null, 400, false, "FilterField invalid. There is no attribute/property named {0}", values: [s.Key]);
+                        _logger.LogInformation($"Filter key {s.Key}, Filter value: {string.Join(",", s.Value)}");
 
-                        logger.LogInformation($"Filter key {s.Key}, Filter value: {s.Value[0]} ({s.Value.Count})");
-                        
+                        var propInfo = typeof(AssetAllocationView).GetProperty(s.Key);
+                        var propType = propInfo.PropertyType;
+
                         if (s.Value.Any(val => val.Contains('|')))
                         {
                             if (s.Key == "AssignedDate")
                             {
                                 var dateValue = s.Value.FirstOrDefault()?.Split('|');
-                                if (dateValue is { Length: 2 })
+                                if (dateValue is { Length: 2 } && DateTime.TryParse(dateValue[0], out var startDate) && DateTime.TryParse(dateValue[1], out var endDate))
                                 {
-                                    DateTime startDate = DateTime.Parse(dateValue[0]);
-                                    DateTime endDate = DateTime.Parse(dateValue[1]);
+                                    // Handle Nullable DateTime separately
                                     b = b.Where(row => row.AssignedDate >= startDate && row.AssignedDate <= endDate);
                                 }
-                            }
-                            else
-                            {
-                                b = b.Where(row => s.Value.Contains(EF.Property<string>(row, s.Key)));
                             }
                         }
                         else if (s.Value.Count == 1)
                         {
-                            if (s.Value[0] == "[null]") b = b.Where(a => EF.Property<object>(a, s.Key).Equals(null) );
-                            else if (s.Value[0] == "[notnull]") b = b.Where(a => !EF.Property<object>(a, s.Key).Equals(null) );
-                            else b = b.Where(a => EF.Functions.Like(EF.Property<string>(a, s.Key).ToString(), $"{s.Value[0]}%"));
+                            var value = s.Value[0];
+
+                            if (value == "[null]")
+                            {
+                                if (s.Key == "ReturnedDate")
+                                {
+                                    b = b.Where(a => a.ReturnedDate == null);                        
+                                }
+                            }
+                            else
+                            {
+                                if (s.Key == "AssetTypeName")
+                                {
+                                    b = b.Where(a => a.AssetTypeName == value);
+                                }
+                            }
                         }
-                        else b = b.Where(a => s.Value.Contains(EF.Property<string>(a, s.Key).ToString()));
+                        else
+                        {
+                            var valueList = s.Value;
+                            b = b.Where(a => a.AssetTypeName == s.Value[0]);
+                        }
                     }
                 }
             }
