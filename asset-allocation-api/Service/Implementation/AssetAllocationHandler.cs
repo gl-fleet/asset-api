@@ -19,11 +19,13 @@ namespace asset_allocation_api.Service.Implementation;
 
 public class AssetAllocationHandler(
     AppDbContext context, ILogger<AssetAllocationHandler> logger, 
-    IHttpClientFactory clientFactory)
+    IHttpClientFactory clientFactory, 
+    SignalRHub signalRHub)
 {
     private readonly AppDbContext _context = context;
     private readonly IHttpClientFactory _clientFactory = clientFactory;
     private readonly ILogger _logger = logger;
+    private readonly SignalRHub _signalRHub = signalRHub;
     
     public async Task<ResponseGeneric> AssignCaplampWithPli(Asset asset, string departmentId, int personnelNo, int personnelId)
     {
@@ -330,12 +332,8 @@ public class AssetAllocationHandler(
             _logger.LogDebug("Serializing signalR data");
             assetAllocation.Asset = null;
             assetAllocation.Assets = new List<Asset>();
-            // await _kafkaProducer.ProduceAsync(AssetAllocationConfig.kafkaSocketAllocationTopic,
-            //     new Message<string, string>
-            //     {
-            //         Key = assetAllocation.PersonnelNo.ToString(),
-            //         Value = JsonSerializer.Serialize(assetAllocation)
-            //     });
+            
+            await _signalRHub.SendAllocation(assetAllocation);
             _logger.LogDebug("Kafka message produced successfully");
             resp = "SignalR data sent successfully";
         }

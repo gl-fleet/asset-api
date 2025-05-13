@@ -81,7 +81,7 @@ public class Startup
         });
         services.AddDbContext<AppDbContext>(options =>
         {
-            options.UseNpgsql(AssetAllocationConfig.assetAllocationConnectionString).EnableSensitiveDataLogging();
+            options.UseNpgsql(AssetAllocationConfig.assetAllocationConnectionString);
         });
         services.AddSwaggerGen(c =>
         {
